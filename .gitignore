@@ -50,6 +50,7 @@ _deps/
 
 # IDEs and Editors
 .vscode/
+!.vscode/settings.json
 .idea/
 .vs/
 *.suo
