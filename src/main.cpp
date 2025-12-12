@@ -2,6 +2,7 @@
 #include "raymath.h"
 
 #include "agent.h"
+#include <vector>
 
 int main() {
   // Pencere genişlik ve yüksekliği
@@ -11,34 +12,26 @@ int main() {
   // Pencereyi başlat
   InitWindow(screenWidth, screenHeight, "Drone Swarm Simulator - v0.1");
 
-  // Create a agent variable and initialize x and y positons to the middle of
-  // the screen
-  Agent myAgent;
-  myAgent.position = {screenWidth / 2.0f, screenHeight / 2.0f};
-  myAgent.velocity = {2.0f, 2.0f};
-  myAgent.acceleration = {0.1f, 0.1f};
-
   // Hedeflenen FPS (Saniyedeki kare hızı)
   SetTargetFPS(60);
+
+  Swarm mySwarm;
 
   // Ana Oyun Döngüsü (Pencere kapatılana kadar döner)
   while (!WindowShouldClose()) {
     // --- UPDATE ---
-    myAgent.update(screenWidth, screenHeight);
-    myAgent.CheckBoundry(screenWidth, screenHeight);
     
-    // Buraya matematiksel hesaplamalar gelecek
+    mySwarm.update(screenWidth, screenHeight);
 
     // --- ÇİZİM (Draw) ---
     BeginDrawing();
     ClearBackground(RAYWHITE); // Arka planı beyaz yap
 
+    mySwarm.Draw();
+
     // Ekrana yazı yaz
     DrawText("Swarm Simulator Baslatildi!", 400, 350, 30, DARKGRAY);
     DrawText("Press ESC to exit", 10, 10, 20, LIGHTGRAY);
-
-    // Ortaya kırmızı bir nokta (Temsili Drone) koy
-    myAgent.Draw();
 
     EndDrawing();
   }
