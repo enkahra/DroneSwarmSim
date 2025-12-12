@@ -25,6 +25,7 @@ int main() {
   while (!WindowShouldClose()) {
     // --- UPDATE ---
     myAgent.update(screenWidth, screenHeight);
+    myAgent.CheckBoundry(screenWidth, screenHeight);
     
     // Buraya matematiksel hesaplamalar gelecek
 
@@ -37,7 +38,7 @@ int main() {
     DrawText("Press ESC to exit", 10, 10, 20, LIGHTGRAY);
 
     // Ortaya kırmızı bir nokta (Temsili Drone) koy
-    myAgent.DrawCircle();
+    myAgent.Draw();
 
     EndDrawing();
   }
