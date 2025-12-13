@@ -3,22 +3,56 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "vector"
+#include <vector>
 
 struct Swarm {
+    std::vector<std::vector<int>> grid;
+    std::vector<int> costField; // Map for flow field
+    std::vector<int> agentCellIndices;
+    int cellSize = 20;
+    int columns = 0;
+    int rows = 0;
+    
     std::vector<Vector2> positions;
     std::vector<Vector2> velocities;
     std::vector<Vector2> accelerations;
-    int swarmSize = 10000; // Initial size is 10000
+    int swarmSize = 1000; // Initial size is 1000
     float maxSpeed = 5.0f;
     float maxForce = 0.2f;
     float friction = 0.95f;
 
-    Swarm() {
+    Texture2D agentSprite;
+
+    Swarm(int screenWidth, int screenHeight) {
+        // Movement code
         positions.resize(swarmSize);
         velocities.resize(swarmSize);
         accelerations.resize(swarmSize);
 
+        // Collision system code
+        columns = screenWidth / cellSize; 
+        rows = screenHeight / cellSize; 
+        grid.resize(columns * rows);
+        agentCellIndices.resize(swarmSize);
+
+        // Flow field code
+        costField.resize(columns * rows);
+        fill(costField.begin(), costField.end(), 1);
+        for(int i{0}; i < costField.size(); ++i) {
+            int col = i % columns;
+            int row = i / columns;
+            if ((col == 0 || col == columns - 1) || (row == 0 || row == rows - 1)) {
+                costField[i] = 255;
+            }
+        }
+
+        // Image gen code
+        Image droneImage = GenImageColor(10, 10, BLANK);
+        ImageDrawCircle(&droneImage, 5, 5, 4, RED);
+        agentSprite = LoadTextureFromImage(droneImage);
+        UnloadImage(droneImage);
+
+        // Spawn drones random locations and make them still
         for (int i{0}; i < swarmSize; ++i) {
             positions[i].x = GetRandomValue(0, 1200);
             positions[i].y = GetRandomValue(0, 800);
@@ -32,6 +66,20 @@ struct Swarm {
         bool isMouseDown = IsMouseButtonDown(MOUSE_LEFT_BUTTON);
         Vector2 mousePosition = GetMousePosition();
 
+        for(auto& cell : grid) {
+            cell.clear(); // Clear early cell
+        }
+
+        for(int i{0}; i < swarmSize; ++i) {
+            int col = positions[i].x / cellSize;
+            col = Clamp(col, 0, columns - 1); // 0 ile 23 arasina sinirliyoruz(24 olup out of bound hatasi vermesin diye)
+            int row = positions[i].y / cellSize;
+            row = Clamp(row, 0, rows - 1); // 0 ile 23 arasina sinirliyoruz
+            int cellIndex = row * columns + col; // Ajan hangi hucrede bunu tutuyor
+            agentCellIndices[i] = cellIndex; // Caching
+            grid[cellIndex].push_back(i);
+        }
+
         for (int i{0}; i < swarmSize; ++i) {
             accelerations[i].x = 0;
             accelerations[i].y = 0;
@@ -44,28 +92,38 @@ struct Swarm {
             if (distanceToMouse < 100) {
                 float speed = maxSpeed * (distanceToMouse / 100.0f);
                 desiredLocation = Vector2Scale(desiredLocationNormalized, speed);
-            } else {
-                desiredLocation = Vector2Scale(desiredLocationNormalized, maxSpeed);
-            }
+            } 
+                desiredLocation = Vector2Scale(desiredLocationNormalized, maxSpeed); // If its not close go in full speed
             
                 Vector2 steer = Vector2Subtract(desiredLocation, velocities[i]);
-                steer = Vector2ClampValue(steer, 0.01, maxForce);
+                steer = Vector2ClampValue(steer, 0.01, maxForce); 
                 accelerations[i] = steer;
             }
             
+            int cellIndex = agentCellIndices[i];
+            for(auto neighborId : grid[cellIndex]) {
+                if(neighborId == i) continue;
+                Vector2 prixomity = Vector2Subtract(positions[i], positions[neighborId]);
+                float prixomityDistance = Vector2Length(prixomity);
+
+                if(prixomityDistance < 10) {    
+                    Vector2 prixomityNormalized = Vector2Normalize(prixomity);
+                    prixomity = Vector2Scale(prixomityNormalized, 0.5f);
+                    accelerations[i] = Vector2Add(accelerations[i], prixomity); 
+                }
+            }
+
             velocities[i] = Vector2Add(velocities[i], accelerations[i]);
             positions[i] = Vector2Add(positions[i], velocities[i]);
 
-            // Friction 
+            //  Friction 
             velocities[i] = Vector2Scale(velocities[i], friction); 
 
-            CheckBoundry(screenWidth, screenHeight, i);
+            CheckBoundary(screenWidth, screenHeight, i);
             }
         }
         
-    void CheckBoundry(int screenWidth, int screenHeight, int i) { 
-        // Checking for boundry
-        // XXX : This check may not work when screen resized
+    void CheckBoundary(int screenWidth, int screenHeight, int i) { 
         if (positions[i].x > screenWidth) {
             positions[i].x = screenWidth;
             velocities[i].x *= -1;
@@ -85,11 +143,22 @@ struct Swarm {
     }
 
     void Draw() {
+        for(int i{0}; i < costField.size(); ++i) {
+            int x = i % columns;
+            int y = i / columns;
+            int pixelX = x * cellSize;
+            int pixelY = y * cellSize;
+            if(costField[i] == 255) {
+                DrawRectangle(pixelX, pixelY, cellSize, cellSize, BLACK);
+            } else {
+                DrawRectangleLines(pixelX, pixelY, cellSize, cellSize, GRAY);
+            }
+        }
+
         for(int i{0}; i < swarmSize; ++i) {
-            DrawCircleV(positions[i], 4, RED);
+            DrawTexture(agentSprite, positions[i].x -5, positions[i].y -5, WHITE);
         }
     }
-
 };
 
 #endif 
