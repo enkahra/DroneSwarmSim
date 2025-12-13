@@ -9,6 +9,7 @@ struct Swarm {
     std::vector<std::vector<int>> grid;
     std::vector<int> costField; // Map for flow field
     std::vector<int> agentCellIndices;
+    int proximityMeter = 20;
     int cellSize = 20;
     int columns = 0;
     int rows = 0;
@@ -17,6 +18,7 @@ struct Swarm {
     std::vector<Vector2> velocities;
     std::vector<Vector2> accelerations;
     int swarmSize = 1000; // Initial size is 1000
+    int distanceToMouseThreshold = 100;
     float maxSpeed = 5.0f;
     float maxForce = 0.2f;
     float friction = 0.95f;
@@ -54,8 +56,8 @@ struct Swarm {
 
         // Spawn drones random locations and make them still
         for (int i{0}; i < swarmSize; ++i) {
-            positions[i].x = GetRandomValue(0, 1200);
-            positions[i].y = GetRandomValue(0, 800);
+            positions[i].x = GetRandomValue(cellSize, screenWidth - cellSize);
+            positions[i].y = GetRandomValue(cellSize, screenHeight - cellSize);
 
             velocities[i] = {0.0f, 0.0f};
             accelerations[i] = {0.0f, 0.0f};
@@ -89,7 +91,7 @@ struct Swarm {
                 float distanceToMouse = Vector2Length(desiredLocation);
                 Vector2 desiredLocationNormalized = Vector2Normalize(desiredLocation);
 
-            if (distanceToMouse < 100) {
+            if (distanceToMouse < distanceToMouseThreshold) {
                 float speed = maxSpeed * (distanceToMouse / 100.0f);
                 desiredLocation = Vector2Scale(desiredLocationNormalized, speed);
             } 
@@ -106,7 +108,7 @@ struct Swarm {
                 Vector2 prixomity = Vector2Subtract(positions[i], positions[neighborId]);
                 float prixomityDistance = Vector2Length(prixomity);
 
-                if(prixomityDistance < 10) {    
+                if(prixomityDistance < proximityMeter) {   
                     Vector2 prixomityNormalized = Vector2Normalize(prixomity);
                     prixomity = Vector2Scale(prixomityNormalized, 0.5f);
                     accelerations[i] = Vector2Add(accelerations[i], prixomity); 
@@ -124,20 +126,20 @@ struct Swarm {
         }
         
     void CheckBoundary(int screenWidth, int screenHeight, int i) { 
-        if (positions[i].x > screenWidth) {
-            positions[i].x = screenWidth;
+        if (positions[i].x > screenWidth - cellSize) {
+            positions[i].x = screenWidth - cellSize;
             velocities[i].x *= -1;
         }
-        if (positions[i].x < 0) {
-            positions[i].x = 0;
+        if (positions[i].x < cellSize) {
+            positions[i].x = cellSize;
             velocities[i].x *= -1;
         }
-        if (positions[i].y > screenHeight) {
-            positions[i].y = screenHeight;
+        if (positions[i].y > screenHeight - cellSize) {
+            positions[i].y = screenHeight - cellSize;
             velocities[i].y *= -1;
         }
-        if (positions[i].y < 0) {
-            positions[i].y = 0;
+        if (positions[i].y < cellSize) {
+            positions[i].y = cellSize;
             velocities[i].y *= -1;
         }
     }
