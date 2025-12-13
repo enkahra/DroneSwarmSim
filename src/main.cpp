@@ -1,12 +1,11 @@
 #include "raylib.h"
 
 #include "agent.h"
-#include <cstddef>
 
 int main() {
   // Pencere genişlik ve yüksekliği
-  int screenWidth = 1200; // Make this number can scale with fullscreen option and customazible with few options
-  int screenHeight = 800; // Make this number can scale with fullscreen option and customazible with few options
+  int screenWidth = 1200; 
+  int screenHeight = 800; 
   
 
   // Pencereyi başlat
@@ -38,14 +37,13 @@ int main() {
 
     if(timer < displayTime) {
       timer += GetFrameTime();
-      DrawText("Swarm Simulator Baslatildi!", 400, 350, 30, DARKGRAY); // After few seconds this text must disapper
+      DrawText("Swarm Simulator Baslatildi!", 750, 600, 30, DARKGRAY); // After few seconds this text must disapper
     }
 
     // Adds circles
     mySwarm.Draw(); // Maybe add options to user choose drones color
 
     // Ekrana yazı yaz
-    
     DrawText("Press ESC to exit", 10, 10, 20, YELLOW);
     DrawFPS(15, 40);
 

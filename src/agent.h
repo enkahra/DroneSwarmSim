@@ -9,7 +9,7 @@ struct Swarm {
     std::vector<std::vector<int>> grid;
     std::vector<int> costField; // Map for flow field
     std::vector<int> agentCellIndices;
-    int proximityMeter = 20;
+    int proximityMeter = 20; // Line 111 this is for collison system
     int cellSize = 20;
     int columns = 0;
     int rows = 0;
@@ -18,7 +18,7 @@ struct Swarm {
     std::vector<Vector2> velocities;
     std::vector<Vector2> accelerations;
     int swarmSize = 1000; // Initial size is 1000
-    int distanceToMouseThreshold = 100;
+    int distanceToMouseThreshold = 100; // Line 94 this is for moving
     float maxSpeed = 5.0f;
     float maxForce = 0.2f;
     float friction = 0.95f;
@@ -102,7 +102,7 @@ struct Swarm {
                 accelerations[i] = steer;
             }
             
-            int cellIndex = agentCellIndices[i];
+            int cellIndex = agentCellIndices[i]; // Takes from cached vector
             for(auto neighborId : grid[cellIndex]) {
                 if(neighborId == i) continue;
                 Vector2 prixomity = Vector2Subtract(positions[i], positions[neighborId]);
