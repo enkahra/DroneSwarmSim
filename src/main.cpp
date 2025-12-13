@@ -4,8 +4,8 @@
 
 int main() {
   // Pencere genişlik ve yüksekliği
-  int screenWidth = 1200; 
-  int screenHeight = 800; 
+  int screenWidth = 0; 
+  int screenHeight = 0; 
   
 
   // Pencereyi başlat
