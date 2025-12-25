@@ -33,7 +33,7 @@ int main() {
 
     // --- ÇİZİM (Draw) ---
     BeginDrawing();
-    ClearBackground(RAYWHITE); // Arka planı beyaz yap // Maybe add options to user choose backgroung color
+    ClearBackground(WHITE); // Arka planı beyaz yap // Maybe add options to user choose backgroung color
 
     if(timer < displayTime) {
       timer += GetFrameTime();
@@ -44,8 +44,8 @@ int main() {
     mySwarm.Draw(); // Maybe add options to user choose drones color
 
     // Ekrana yazı yaz
-    DrawText("Press ESC to exit", 10, 10, 20, YELLOW);
-    DrawFPS(15, 40);
+    DrawText("Press ESC to exit", screenWidth - 210, screenHeight - 40, 20, DARKGRAY);
+    
 
     EndDrawing();
   }
